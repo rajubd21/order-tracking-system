@@ -35,21 +35,20 @@ class Order:
         if watcher in self._watchers:
             self._watchers.remove(watcher)
 
-    def notify_watchers(self):
-        """Notify every watcher on the list at that moment (Rule 4)."""
-        for watcher in self._watchers:
-            watcher.update(self._status)
-
     def set_status(self, new_status: str):
-        self._status = new_status
-        print(f"Order is now: {self._status}")
-        self.notify_watchers()
-
-        # Automatically unregister the kitchen screen once delivered
-        if self._status == "Delivered":
+        # Check if the new status is "Delivered" before notifying, 
+        # and remove the kitchen screen from the list if it is.
+        if new_status == "Delivered":
             for watcher in list(self._watchers):
                 if isinstance(watcher, KitchenScreen):
                     self.detach(watcher)
+
+        self._status = new_status
+        print(f"Order is now: {self._status}")
+        
+        # Notify all remaining watchers at that moment
+        for watcher in self._watchers:
+            watcher.update(self._status)
 
 # --- Execution matching required output ---
 if __name__ == "__main__":
